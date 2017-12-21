@@ -1,0 +1,411 @@
+% ======= Distances ==========
+index(+, +, -)
+distance(p1, f1, 300).
+distance(p1, f2, 160).
+distance(p1, f3, 280).
+distance(p1, f4, 200).
+distance(p1, f5, 160).
+distance(p1, f6, 130).
+
+distance(f2, f1, 168).
+distance(f2, f3, 240).
+distance(f2, f4, 120).
+distance(f2, f5, 168).
+distance(f2, f6, 120).
+
+distance(f3, f1, 168).
+distance(f3, f2, 240).
+distance(f3, f4, 120).
+distance(f3, f5, 168).
+distance(f3, f6, 260).
+
+distance(f4, f1, 120).
+distance(f4, f2, 120).
+distance(f4, f3, 120).
+distance(f4, f5, 120).
+distance(f4, f6, 168).
+
+distance(f5, f1, 260).
+distance(f5, f2, 168).
+distance(f5, f3, 168).
+distance(f5, f4, 120).
+distance(f5, f6, 120).
+
+distance(f6, f1, 240).
+distance(f6, f2, 120).
+distance(f6, f3, 260).
+distance(f6, f4, 168).
+distance(f6, f5, 120).
+
+distance(p1, p2, 200).
+
+distance(p2, g1, 300).
+distance(p2, g2, 180).
+distance(p2, g3, 280).
+distance(p2, g4, 140).
+
+distance(g2, g1, 200).
+distance(g2, g3, 260).
+distance(g2, g4, 120).
+
+distance(g3, g1, 120).
+distance(g3, g2, 260).
+distance(g3, g4, 200).
+
+distance(g4, g1, 260).
+distance(g4, g2, 120).
+distance(g4, g3, 200).
+
+distance(a1, p1, 120).
+distance(a2, p2, 100).
+distance(a1, a2, 340).
+
+distance(f1, g1, 468).
+distance(f1, g2, 580).
+distance(f1, g3, 588).
+distance(f1, g4, 600).
+distance(f1, a1, 200).
+distance(f1, a2, 340).
+distance(f1, p1, 300).
+distance(f1, p2, 380).
+
+distance(f2, g1, 580).
+distance(f2, g2, 468).
+distance(f2, g3, 600).
+distance(f2, g4, 588).
+distance(f2, a1, 40).
+distance(f2, a2, 380).
+distance(f2, p1, 160).
+distance(f2, p2, 290).
+
+distance(f3, g1, 420).
+distance(f3, g2, 380).
+distance(f3, g3, 420).
+distance(f3, g4, 580).
+distance(f3, a1, 320).
+distance(f3, a2, 370).
+distance(f3, p1, 280).
+distance(f3, p2, 320).
+
+distance(f4, g1, 500).
+distance(f4, g2, 520).
+distance(f4, g3, 560).
+distance(f4, g4, 580).
+distance(f4, a1, 280).
+distance(f4, a2, 340).
+distance(f4, p1, 200).
+distance(f4, p2, 340).
+
+distance(f5, g1, 380).
+distance(f5, g2, 300).
+distance(f5, g3, 580).
+distance(f5, g4, 420).
+distance(f5, a1, 180).
+distance(f5, a2, 280).
+distance(f5, p1, 160).
+distance(f5, p2, 270).
+
+distance(f6, g1, 520).
+distance(f6, g2, 500).
+distance(f6, g3, 580).
+distance(f6, g4, 580).
+distance(f6, a1, 80).
+distance(f6, a2, 300).
+distance(f6, p1, 130).
+distance(f6, p2, 300).
+
+distance(a1, g1, 540).
+distance(a1, g2, 540).
+distance(a1, g3, 580).
+distance(a1, g4, 570).
+distance(a1, p2, 270).
+
+distance(a2, g1, 320).
+distance(a2, g2, 110).
+distance(a2, g3, 400).
+distance(a2, g4, 180).
+distance(a2, p1, 270).
+
+distance(p1, g1, 350).
+distance(p1, g2, 400).
+distance(p1, g3, 450).
+distance(p1, g4, 420).
+
+distance(p1, p1, 0).
+distance(p2, p2, 0).
+distance(f1, f1, 0).
+distance(f2, f2, 0).
+distance(f3, f3, 0).
+distance(f4, f4, 0).
+distance(f5, f5, 0).
+distance(f6, f6, 0).
+distance(g1, g1, 0).
+distance(g2, g2, 0).
+distance(g3, g3, 0).
+distance(g4, g4, 0).
+distance(a1, a1, 0).
+distance(a2, a2, 0).
+
+index(-)
+full_fuel(600).
+
+% =========== Find shortest path ==========
+
+table(+, +, +, -, -, -, min)
+path_plan(Loc, FuelLevel, [], FinalLoc, FinalLevel, Plan, Fuel) =>
+	FinalLoc = Loc,
+	FinalLevel = FuelLevel,
+	Plan = [],
+	Fuel = 0.
+path_plan(Loc, FuelLevel, ToVisit, FinalLoc, FinalLevel, Plan, Fuel),
+	select(Loc, ToVisit, RestToVisit) =>
+	Plan = $[dock(Loc), unload(Loc), undock(Loc) | RestPlan],
+	path_plan(Loc, FuelLevel, RestToVisit, FinalLoc, FinalLevel, RestPlan, Fuel).
+
+path_plan(Loc, FuelLevel, ToVisit, FinalLoc, FinalLevel, Plan, Fuel) =>
+	member(NextLoc, ToVisit),
+	navigate(Loc, NextLoc, FuelLevel, NextLevel, Plan1, Fuel1),
+	path_plan(NextLoc, NextLevel, ToVisit, FinalLoc, FinalLevel, Plan2, Fuel2),
+	Plan = Plan1 ++ Plan2,
+	Fuel = Fuel1 + Fuel2.
+
+navigate(Loc, NextLoc, FuelLevel, NextLevel, Plan1, Fuel1) => 
+	get_distance(Loc, NextLoc, Dist),
+	fuel_consume(Dist, 0, Fuel1),
+	full_fuel(NextLevel),
+	Plan1 = $[navigate(Loc, NextLoc)].
+
+get_distance(Loc, NextLoc, Dist) =>
+	distance(Loc, NextLoc, Dist);
+	distance(NextLoc, Loc, Dist).
+
+% ======= Find whole plan =========
+plan_entry(OriginalCargo, Cargo, Vessels, BPlan, Plan, BFuel, TFuel) =>
+	get_global_map(min1).put(min, 99999999),
+	plan(OriginalCargo, Cargo, Vessels, BPlan, Plan, BFuel, TFuel).
+
+table (+,+,+, -,-,-,min)
+plan(_, [], Vessels, BPlan, Plan, BFuel, TFuel) =>
+     Plan = BPlan, back_to_waiting(Vessels, BPlan, BFuel), TFuel=BFuel.
+plan(OriginalCargo, Cargo, Vessels, BPlan, Plan, BFuel, TFuel) =>
+	select_port(Cargo, Port, PortCargo, RestCargo),
+	select_cargo(PortCargo, 100, Destinations, FreeCap, RestPortCargo),
+	len(Destinations) > 0,
+	select_and_move_vessel(Vessels, Port, FuelLevel1, RestVessels, Plan1, Fuel1),
+	load_at_other_ports(RestCargo, Port, FreeCap, FuelLevel1,
+	                 Destinations2, RestCargo2, Port2, FuelLevel2, Plan2, Fuel2),
+	path_plan(Port2, FuelLevel2, sort_remove_dups(Destinations ++ Destinations2),
+	       FinalLoc, FinalLevel, Plan3, Fuel3),
+	NewVessels = addVessel(RestVessels, FinalLoc, FinalLevel),
+	plan(OriginalCargo, addCargo(RestCargo2, Port, RestPortCargo),
+	  NewVessels,
+	  BPlan, Plan4, BFuel, Fuel4),
+	append(Plan1, $[load(Port),undock(Port)] , Plan2, P),
+	append(P, Plan3 ,Plan4, Plan),
+	TFuel = Fuel1 + Fuel2 + Fuel3 + Fuel4,
+	if TFuel >= get_global_map(min1).get(min) then
+		%% println(["Already larger than ", get_global_map(min1).get(min)]),
+		fail
+	end,
+	if Cargo = OriginalCargo then
+		% println([TFuel, Plan]),
+		if TFuel < get_global_map(min1).get(min) then
+			get_global_map(min1).put(min, TFuel),
+		end
+	end.
+
+addCargo(RestCargo2, Port, RestPortCargo) = X =>
+	if len(RestPortCargo) > 0 then
+		X = [[Port | RestPortCargo] |RestCargo2]
+	else
+		X = RestCargo2
+	end.
+
+addVessel(RestVessels, FinalLoc, FinalLevel) = X =>
+	if member(FinalLoc, flatten(RestVessels)) then 
+		compose_vessel(RestVessels, FinalLoc, FinalLevel, X)
+	else
+		X = [[FinalLoc, FinalLevel] | RestVessels]
+	end.
+compose_vessel([], _, _, X) =>
+	X = [].
+
+compose_vessel([RV|RestVessels], FinalLoc, FinalLevel, X) =>
+	compose_vessel(RestVessels, FinalLoc, FinalLevel, X1),
+	if first(RV) = FinalLoc then
+		[First | Rvs] = RV,
+		X = [[First | sort([FinalLevel|Rvs])]|X1]
+	else
+		X = [RV | X1]
+	end.
+fuel_consume(Dist, _, Fuel) =>
+	Fuel = Dist / 3.
+
+combinationH([], Comb) =>
+	comb = [].
+combinationH(List, Comb) =>
+	permute(List, Comb);
+	member(L, List),
+	select(L, List, RestList),
+	combinationH(RestList, Comb).
+
+permute([], L) =>
+	L = [].
+permute([X|Xs], Ys) =>
+	permute(Xs, Zs),
+	select(X, Ys, Zs).
+
+% ====== Select a port ======
+
+select_port(Cargo, Port, PortCargo, RestCargo) =>
+	member(Port, [p1,p2]),
+	select([Port | PortCargo], Cargo, RestCargo).
+
+% ===== Select a vessel and move to port =====
+
+select_and_move_vessel(Vessels, Port, FuelLevelMin, RestVessels, Plan1, Fuel1) =>
+	select_mindist_vessel(Vessels, Port, Port1, FuelLevel, RestPortVessels, Dist),
+	[FuelLevelMin1 | RestFuelLevel] = sort(FuelLevel),
+	if len(RestFuelLevel) > 0 then
+		RestVessels = [[Port1 | RestFuelLevel] | RestPortVessels]
+	else
+		RestVessels = RestPortVessels
+	end,
+	fuel_consume(Dist, 0, Fuel1),
+	FuelLevelMin = FuelLevelMin1 - Fuel1,
+	Plan1 = $[undock(Port1), navigate(Port1, Port), dock(Port)].
+
+
+table(+, +, -, -, -, min)	
+select_mindist_vessel(Vessels, Port, Port1, FuelLevel, RestPortVessels, Dist) =>
+	member(PortVessels, Vessels),
+	select(PortVessels, Vessels, RestPortVessels),
+	[Port1|FuelLevel] = PortVessels,
+	get_distance(Port, Port1, Dist).
+
+% ===== Select a series of cargo to deliver from original port ====
+
+select_cargo([], FreeCap1, Destinations, FreeCap, RestPortCargo) => 
+	Destinations = [], FreeCap = FreeCap1, RestPortCargo = [].
+
+select_cargo(PortCargo, FreeCap2, Destinations, FreeCap, RestPortCargo) =>
+	([Cargo | RestCargo] = PortCargo,
+		select_cargo(RestCargo, FreeCap2, Destinations1, FreeCap1, RestPortCargo1),
+		Destinations = Destinations1,
+		FreeCap = FreeCap1,
+		RestPortCargo = [Cargo | RestPortCargo1]);
+	([Cargo | RestCargo] = PortCargo,
+		select_cargo(RestCargo, FreeCap2, Destinations1, FreeCap1, RestPortCargo1),
+		[DestPort | Weights] = Cargo,
+		load_cargo(FreeCap1, Weights, FreeCap, RestWeights),
+		if RestWeights = [] then
+			RestPortCargo = RestPortCargo1
+		else
+			RestPortCargo = [[DestPort | RestWeights] | RestPortCargo1]
+		end,
+		if member(Cargo, RestPortCargo) then
+			Destinations = Destinations1
+		else
+			Destinations = [DestPort | Destinations1]
+		end).
+
+load_cargo(FreeCap1, Weights, FreeCap, RestWeights) =>
+	load_cargoH(FreeCap1, Weights, [], FreeCap, RestWeights).
+
+load_cargoH(FreeCap1, [], RestWeightsAcc, FreeCap, RestWeights) =>
+	FreeCap = FreeCap1, RestWeights = RestWeightsAcc.
+
+load_cargoH(FreeCap1, Weights, RestWeightsAcc, FreeCap, RestWeights) =>
+	[W | RestWeights1] = Weights,
+	if FreeCap1 >= W then
+		FreeCap2 := FreeCap1 - W,
+		RestWeightsAcc1 = RestWeightsAcc
+	else
+		FreeCap2 := FreeCap1,
+		RestWeightsAcc1 = RestWeightsAcc ++ [W]
+	end,
+	load_cargoH(FreeCap2, RestWeights1, RestWeightsAcc1, FreeCap, RestWeights).
+
+% ===== Load at other ports =====
+% One vessel can load additional cargo at other ports. Well, it can go to destination directly
+
+load_at_other_ports(RestCargo, Port, FreeCap, FuelLevel1,
+                         Destinations2, RestCargo2, Port2, FuelLevel2, Plan2, Fuel2) =>
+	get_distance(p1, p2, Dist),
+	fuel_consume(Dist, 1, Fuel1),
+	if FuelLevel1 > Fuel1 then
+		(select(Port, [p1, p2], RestPort),
+		combinationH(RestPort, RestPort1),
+		[RP] = RestPort1,
+		member([RP | Weights], RestCargo),
+		select_cargo(Weights, FreeCap, Destinations2, FreeCap1, RestCargo1),
+		len(Destinations2) > 0,
+		if len(RestCargo1) > 0 then
+			RestCargo2 = [RP | RestCargo1]
+		else
+			RestCargo2 = []
+		end,
+		Port2 = RP,
+		Fuel2 = Fuel1,
+		FuelLevel2 = FuelLevel1 - Fuel1,
+		Plan2 = $[navigate(Port, Port2), dock(Port2), load(Port2),undock(Port2)]);
+		(
+			Destinations2 = [],
+			RestCargo2 = RestCargo,
+			Port2 = Port,
+			FuelLevel2 = FuelLevel1,
+			Plan2 = [],
+			Fuel2 = 0)
+	else
+		Destinations2 = [],
+		RestCargo2 = RestCargo,
+		Port2 = Port,
+		FuelLevel2 = FuelLevel1,
+		Plan2 = [],
+		Fuel2 = 0
+	end.
+
+% ===== Put all vessels back to waiting area ====
+back_to_waiting([], BPlan, BFuel) =>
+	BFuel = 0, BPlan = [].
+
+back_to_waiting([V|Vessels], BPlan, BFuel) =>
+	back_to_waiting(Vessels, BPlan1, BFuel1),
+	[Place | PlaceVessels] = V,
+	if member(Place, [a1,a2]) then
+		BPlan = BPlan1,
+		BFuel = BFuel1
+	else
+		find_min_waitingarea(Place, WaitingArea, Fuel),
+		BFuel = BFuel1 + Fuel * len(PlaceVessels),
+		repeat($[navigate(Place, WaitingArea), dock(WaitingArea)], len(PlaceVessels), BPlan2),
+		append(BPlan1, BPlan2, BPlan)
+	end.
+
+
+find_min_waitingarea(Place, WaitingArea, Fuel) =>
+	get_distance(Place, a1, Dist1),
+	get_distance(Place, a2, Dist2),
+	if Dist1 > Dist2 then
+		WaitingArea = a2,
+		fuel_consume(Dist2, 0, Fuel)
+	else
+		WaitingArea = a1,
+		fuel_consume(Dist1, 0, Fuel)		
+	end.
+
+repeat(Term, Count, Result) =>
+	if Count = 0 then 
+		Result = []
+	else
+		Count1 := Count - 1,
+		repeat(Term, Count1, Result1),
+		append(Term, Result1, Result)
+	end.
+
+% ======== Main Entry =======
+main(BPlan, Plan, BFuel, TFuel) =>
+	plan_entry([[p1,[f1,20],[f2,30,15],[f3,10],[f4,15],[f5,25],[f6,5]],[p2,[f1,40],[f2,30],[g1,20,15],[g2,30,20]]],
+		[[p1,[f1,20],[f2,30,15],[f3,10],[f4,15],[f5,25],[f6,5]],[p2,[f1,40],[f2,30],[g1,20,15],[g2,30,20]]],
+		[[a1,400,400,400,400,400,400],[a2,400,400,400,400]],
+		BPlan, Plan, BFuel, TFuel).
